@@ -108,3 +108,68 @@ Spring Aop 是一种基于方法的拦截AOP。
 
 @AspectJ 注解开发AOP
 
+在spring中只要使用了@Aspect 注解一个类。SpringIoc 容器就会认为这是一个切面。
+
+```java
+@Aspect
+public class RoleAspect{
+    @Before("execution(*com.tomi.aop.RoleServiceImpl.printRole(..))")
+    public void before(){
+        System.out.println("before ...");
+    }
+
+    @After("execution(*com.tomi.aop.RoleServiceImpl.printRole(..))")
+    public void after(){
+        System.out.println("after");
+    }
+
+    @AfterReturning("execution(*com.tomi.aop.RoleServiceImpl.printRole(..))")
+    public void afterReturning(){
+        System.out.println("afterReturning");
+    }
+
+    @AfterThrowing()
+    public void afterThrowing(){
+        System.out.println("afterThrowing");
+    }
+
+    //execution: 代表执行方法的时候会触发
+    // * 代表任意返回类型的方法
+    // com.tomi.aop.RoleServiceImpl 代表类的全限定名
+    // printRole 被拦截的方法名称
+    // （...） 任意的参数
+
+    //定义一个切点 可以简洁编码
+    @Pointcut("execution(*com.tomi.aop.RoleServiceImpl.printRole(..))")
+    public void print(){}
+    @Before("print()")
+    public void before(){
+        System.out.println("before....");
+    }
+    //...... 类似上面这种
+}
+
+//通过注解方式调用 AOP
+@Configuration
+@EnableAspectJAutoProxy
+//启用AspectJ 框架的自动代理
+@ComponentScan("com.tomi.aop")
+public class AopConfig{
+    @Bean
+    public RoleAspect getRoleAspect(){//生成一个切面实例
+        return new RoleAspect();
+    }
+}
+public class Main{
+    public static void main(String[] args){
+        ApplicationContext ctx = new AnnotationConfigApplicationContext(AopConfig.class);
+
+        RoleService roleService = (RoleService) ctx.getBean(RoleService.class);
+        roleService.printRole();
+        //AOP已经通过AOP织入约定的流程当中了
+    }
+}
+
+
+```
+spring 可以定义多个切面 通过 @Order 可以规定执行的顺序
