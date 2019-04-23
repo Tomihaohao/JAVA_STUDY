@@ -33,3 +33,7 @@ MyBatis 核心组件 分为下面4个部分
 - defaultExecutorType Simple 普通执行器 Reuse 重用预处理器 Batch将重用语句并执行批量更新
 - mapUnderscoreToCamelCase 是否开启自动驼峰映射
 
+## typeAliases 别名
+
+## typeHandler 类型转换器
+
