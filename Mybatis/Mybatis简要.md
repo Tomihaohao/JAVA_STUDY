@@ -37,3 +37,106 @@ MyBatis 核心组件 分为下面4个部分
 
 ## typeHandler 类型转换器
 
+```java
+public interface TypeHandler<T>{
+    void setParameter(PreparedStatement ps,int i,T parameter,jdbcType jdbcType) throws SQLException
+    T getResult(ResultSet rs,String columnName) throws  SQLException
+    T getResult(ResultSet rs,int columnIndex) throws SQLException
+    T getResult(CallableStatement cs,int columnIndex) throws SQLException
+}
+//其中 T 是泛型 专指javaType 例如 这样 implements TypeHandler<String>
+//setParameter 方法是使用 typeHandler 通过PreparedStatement 对象进行设置SQL参数的时候使用的具体方法，其中I是参数在SQL的下标，parameter 是参数，jdbcTyoe是数据库类型
+
+//自定义 typeHandler
+public class MyTypeHandler implements TypeHandler<String>{
+    @Override
+    public void setParameter(PreparedStatement ps,int i,String parameter,jdbctype jdbcType) throws SQLException{
+        logger.info("设置string 参数");
+        ps.setString(i,parameter);
+    }
+    @Override
+    public String getResult(ResultSet rs,String columnName) throws SQLException{
+        String result = rs.getString(columnName);
+        logger.info("读取string 参数1")
+        return result
+    }
+    @Override
+    public String getResult(ResultSet rs,String columnName) throws SQLException{
+        String result = rs.getString(columnIndex);
+        logger.info("读取string 参数2")
+        return result
+    }
+    @Override
+    public String getResult(ResultSet rs,String columnName) throws SQLException{
+        String result = rs.getString(columnIndex);
+        logger.info("读取string 参数3")
+        return result
+    }
+    
+}
+```
+```xml
+<typeHandlers>
+    <typeHandler jdbcType="VARCHAR" javaType="string" handler="MyTypeHandler">
+</typeHandlers>
+```
+
+## 插件
+
+ ### 事务管理器
+ ```java
+ public interface Transaction{
+     Connection getConnection() throws SQLException;
+     void commit() throws SQLException;
+     void rollback() throws SQLException;
+     void close() throws SQLException;
+     Integer getTimeout() throws SQLException;
+ }
+
+ //自定义事务
+ public class MyTransactionFactory implements TransactionFactory{
+     @Override
+     public void setProperties(Properties props){
+     }
+     @Override
+     public Transaction newTransaction(Connection conn){
+         return new MyTransaction(conn);
+     }
+     @Override
+     public Transaction newTransaction(DataSource dataSource,TransactionIsolationLevel level,boolean autoCommit){
+         return new MyTransaction(dataSource,level,autoCommit);
+     }
+ }
+
+ public class MyTransaction extends JdbcTransaction implements Transaction{
+     public MyTransaction(DataSource ds,TransactionIsolatinLevel desiredLevel,boolean desiredAutoCommit){
+         super(ds,desiredLevel,desiredAutoCommit);
+     }
+     public MyTransaction(Connection connection){
+         super(connection)
+     }
+     @Override
+     public Connection getConnection() throws SQLException{
+         return super.getConnection();
+     }
+     @Override
+     public void commit() throws SQLException{
+         super.commit();
+     }
+     @Override
+     public void rollback() throws SQLException{
+         return super.rollback();
+     }
+     @Override
+     public void close() throws SQLException{
+         return super.close();
+     }
+     @Override
+     public Integer getTimeout() throws SQLException{
+         return super.getTimeout();
+     }
+ }
+ ```
+
+ ## 映射器
+ 
