@@ -139,4 +139,25 @@ public class MyTypeHandler implements TypeHandler<String>{
  ```
 
  ## 映射器
- 
+  ```java
+  public class Pageparams{
+      private int start;
+      private int limit;
+      /**setter and getter**/
+  }
+  public List<Role> findByMix(@Param("params") RoleParams roleParams,@Param("page") PageParam PageParam)
+  ```
+  ```xml
+  <select id="findByMix" resultType="role">
+    select id,role_name as RoleName,note from t_role where role_name like concat('%',#{params.roleName},'%') and note like concat('%',#{params.note},'%')
+    limit #{page.start},#{page.limit}
+  </select>
+  ```
+  ### 传递多个参数
+  ```java
+  public List<Role> findRoleMap(Map<String,Object parameterMap);
+  public List<Role> findRoleMapAnnotation(@Param("roleName") String rolename)
+
+  ```
+
+  ### resultMap
