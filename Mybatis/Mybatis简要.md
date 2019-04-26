@@ -161,3 +161,27 @@ public class MyTypeHandler implements TypeHandler<String>{
   ```
 
   ### resultMap
+  ### 动态SQL
+  - if set where bind foreach
+
+  ## MyBatis解析和运行原理
+
+  - 第一步 读取配置文件缓存到Configuration对象，用来创建SqlSessionFactory
+  - 第二步 SqlSession 的执行过程
+
+  ### 构建SqlSessionFactory
+  - 通过XMLConfigBuilder 解析配置XML
+  - 用 Confinguration 对象去创建SqlSessionFactory, 默认实现类 DefaultSqlSessionFactory
+
+ ### 构建映射器的内部组成
+ - MappedStatement 保存一个映射器节点 (select,insert,delete,update)
+ - SqlSource 是提供BoundSql对象的一个地方 它的作用就是根据上下文和参数解析生成需要的SQL
+ - BoundSql 是一个结果对象，就是 SqlSource 通过对SQL和参数的联合解析得到的SQL和参数，它是建立SQL和参数的地方
+ 
+ ### SqlSession 下的四大对象
+  - Executor 代表执行器 由它来调度 StatementHandler ParameterHandler ResultSetHandler 等来执行对应的SQL
+  - StatementHandler 的作用是使用数据库的Statement 来执行操作，它是核心 许多插件都是通过拦截它来实现的
+  - ParameterHandler 是用来处理SQL参数的
+  - ResultSetHandler 是进行数据集的封装返回处理
+
+  
