@@ -91,5 +91,27 @@ redis 中的链表是双向链表 可以分为左右操作
 - lpop key 删除左边第一个节点并将其返回
 - rpop key 删除右边第一个节点并将其返回
 - linsert key before|after pivot node 插入一个节点node,并且可以指定在值为pivot 的节点的前面或者后面
-- lpushx list node 
+- lpushx list node 插入节点node并且作为从左到右的第一个节点
+- rpush list node 插入节点node 并且作为从右到左的第一个节点
+- lrange list start end 获取从start 到end 的节点值
+- lrem list count value 如果count 为 0 则删除所有值等于value 的节点，如果count 不为0 ，则先对count 取绝对值 ，然后从左到右删除不大于 count绝对值 个等于value 的节点
+- lset key index node 设置列表下标为index 的节点值为node
+- ltrim key start stop 修剪列表只保留 strat 到stop的区间节点其余的都删除掉
+- blpop key timeout 移除并获取列表的第一个元素，如果列表没有元素会阻塞
+- brpop key timeout 移除并获取列表的最后一个元素，如果列表没有元素会阻塞
+- rpoplpush key src dest 从左到右 的顺序 将一个链表的最后一个元素移除，并插入到目标链表的最左边
+
+spring中使用
+
+- redisTemplate.opsForList().leftPush(list,node)
+- opsForList().leftPushAll(list,nodelist)
+- opsForList().rightPush(list,node)
+- opsForList().rightPushAll(list,nodelist)
+- opsForList().index(list,0) 获取下标为0 的节点
+- opsForList().size(list) 获取链表长度
+- opsForList().leftPop(list) 从左边弹出一个节点
+- opsForList().rightPop(list) 从右边弹出一个节点
+- opsForList().set(list,0,value) 给链表下标为0的节点设置新值
+
+### 集合 ZSET 基本命令
 
