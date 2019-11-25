@@ -60,9 +60,4 @@ JVM 首先调用 call_stub()函数，返回 _call_stub_entry,然后将这个_cal
 
 主要是要弄清楚 JVM 中 CallStub  call_stub例程 相关知识
 
-## JAVA数据结构和面向对象
-
-## java类型识别
-
-Class 字节码
 
