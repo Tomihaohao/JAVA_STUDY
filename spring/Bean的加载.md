@@ -1,3 +1,44 @@
+# Bean的加载时序
+loadBeanDifinitions(resource)->new EncodedResource(resource)->encodedResource:EncodedResource->loadBeanDefinitions(encodedResource),getResource->resource:Resource->getInputStream()->inputStream:InputStream->new InputSource(InputStream)->inputSource:InputSource->doLoadBeanDefinitions(inputSource,encodedResource.getResource())->loadedBeanDefinitionNum:int
+
+# Bean的资源加载
+
+- 首先封装资源文件 当进入XmlBeanDefinitionReader后首先对参数Resource使用EncodedResource类进行封装
+- 获取输入流，从Resource 中获取对应InputStream并构造InputSource
+- 通过构造的InputSource实例和Resource实例继续调用函数doLoadBeanDefinitions
+- doLoadBeanDefinitions 是真正的核心处理部分主要做了 是三件事情
+获取对XML文件的验证模式，加载XML文件，并得到对应的Document,根据返回的Document注册Bean的信息。
+
+# 解析和注册BeanDefinitions
+当把文件转换成Document后，接下来的提取以及注册Bean,会使用registerBeanDefinitions(Document doc,Resource resource) 这个方法将逻辑处理委托给BeanDefinitionDocumentReader,它的重要目的就是提取root，以便于将root作为参数继续BeanDefinition的注册
+
+doRegisterBeanDefinitions(root) 才是真正的进行解析。
+
+首先是对profile处理，profile的作用就是可以让我们同时配置两套不同的环境
+```java
+<beans profile="dev" />
+<beans profile="production" />
+```
+处理了profile后就可以进行对XML的解析了，进入parseBeanDefinition(root,this.delegate);这个方法就是判断，如果用户采用了spring默认支持的解析配置就采用parseDefaultElement否则就自己执行delegate.parseCustomElement进行解析 。
+
+# spring默认标签的解析
+
+默认标签的解析是在 parseDefaultElement 函数中进行的，分别对 import,alias,bean,beans 4种标签做了不同的处理。
+
+## Bean的标签和解析
+首先是委托BeanDefinitionDelegate类的parseBeanDefinitionElement方法进行元素的解析，返回BeanDefinitionHolder类型的实例bdHolder,经过这个方法以后bdHolder实例已经包含我们配置文件中的各种属性了例如 class name id alias之类的属性。随后当返回的bdHolder不为空的情况下若存在默认标签的子节点下再有自定义属性，还需要对自定义的标签再次解析，解析完成以后需要进行注册，这个操作委托给了BeanDefinitionReaderUtils的registerBeanDefinition方法。最后发出响应事件通知相关的监听器，这个Bean已经加载完成了。
+
+解析BeanDefinition:
+
+- 提取元素中的ID 和 name属性
+-  进一步解析其他所有属性并统一封装至GenericBeanDefinition类型的实例中
+- 如果检测到Bean没有指定beanName 那么默认规则为此Bean生成一个Beanname
+- 将获取到的信息封装到BeanDefinitionHolder的实例中。
+
+BeanDefinition在spring中存在三种实现形式，RootBeanDefinition,ChildBeanDefinition 以及GenericBeanDefinition三种实现均继承了AbstractBeanDefinition,其中BeanDefiniton是配置文件bean元素标签在容器中的内部表现形式，bean元素拥有的class,scope,lazy-init 等配置的属性，BeanDefinition则提供了相应的beanClas sscope,lazyInit属性。
+
+spring通过BeanDefiniton将配置文件中的Bean配置信息转换为容器内部的表示，并将这些BeanDefiniton注册到BeanDefinitionRegistery中，spring容器中的BeanDefinitionRegister就好比是spring的内存数据库。
+
 # Bean 的加载
 spring 中Bean 的加载要比 xml的解析 复杂很多
 ```java
