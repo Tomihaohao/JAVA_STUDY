@@ -108,4 +108,52 @@ public interface FactorBean<T>{
     - 注册 Disposable
     - 完成创建并返回
 
+- 初始化Bean
+ - 首先会进入 init-method 属性，这个属性的作用就是在实例化前调用
+ - 激活aware方法 spring中提供来一些aware接口，例如 BeanFactoryAware,ApplicationContextAware,ResourceLoaderAware,ServletContextAware等，实现这些Aware接口的Bean再被初始化之后，可以取得一些相应的资源，比如实现BeanFactoryAware的Bean在初始化后Spring容器将会注入BeanFactory的实例
+
+ ```java
+//定义普通的Bean
+public class Hello{
+    public void say(){
+        print("hello");
+    }
+}
+
+//定义BeanFactoryAware类型的Bean
+public class Test implements BeanFactoryAware{
+    private BeanFactory beanFactory;
+    //声明Bean 的时候 Spring会自动注入BeanFactory
+    @Override
+    public void setBeanFactory(BeanFactory beanFactory) throws BeanException{
+        this.beanFactory = beanFactory;
+    }
+    public void testAware(){
+        //通过hello 这个bean id 从beanFactory 获取实例
+        Hello hello = (Hello) beanFactory.getBean("Hello");
+        hello.say();
+    }
+}
+
+public static void main(String[] s){
+    ApplicationContext ctx = new ClassPathXmlApplicationContex("applicationContext.xml");
+
+    Test test = (Test) ctx.getBean("test");
+}
+
+private void invokeAwareMethods(final String beanName,final Object bean){
+    if(bean instanceof Aware){
+        if(bean instanceof BeanfactoryAware){
+            ((BeanFactoryAware) bean).setBeanFactory(AbstractAutowire CapableBeanFactory.this);
+        }
+    }
+}
+ ```
+
+- 处理器的应用
+
+BeanPostProcessor的 postProcessBeforeInitialization 和 postProcessAfterInitialization方法 自定义初始化方法前和自定义初始化方法后调用
+
+销毁除了destory-method方法以外，还可以注册后处理器 DestructionAwareBeanPostProcess来统一处理bean 的销毁方法
+
 
