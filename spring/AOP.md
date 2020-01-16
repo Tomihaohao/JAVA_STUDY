@@ -173,3 +173,18 @@ public class Main{
 
 ```
 spring 可以定义多个切面 通过 @Order 可以规定执行的顺序
+
+## 创建AOP代理的 AnnotationAwareAspectJAutoProxyCreator
+
+AnnotationAwareAspectJAutoProxyCreator 实现了BeanPostProcessor接口，而实现BeanPostProcessor后，当Spring加载这个Bean时会在实例化前调用其postProcessAfterInitialization方法。
+
+创建代理主要包含了两个步骤
+- 获取增强方法或者增强器
+- 根据获取的增强进行代理
+
+1. 获取所有beanName，这一步中所有在beanFactory中注册的Bean 都会被提取出来。
+2. 遍历所有beanName,并找出声明AspectJ注解的类，进行进一步的处理
+3. 对标记AspectJ注解的类进行增强器的提取
+4. 将提取结果加入缓存中
+
+
